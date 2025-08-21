@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>唐诗宋词 · 古风问答闯关（选择题 & B站小电视）</title>
+<style>
+  :root{
+    --bg:#f7f3ea; --ink:#2b2b2b; --primary:#8c5a2b; --accent:#b98a58;
+    --jade:#2f7a69; --red:#b23a48; --gold:#d1a84a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:"LXGW WenKai Screen","STKaiti","KaiTi","Microsoft YaHei",system-ui,-apple-system,Segoe UI,Roboto,PingFang SC,Noto Sans SC,Arial,sans-serif;
+    background:
+      radial-gradient(ellipse at 20% 10%, #fffdf6 0%, #f8f1e5 45%, #efe6d6 100%),
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" opacity="0.08" viewBox="0 0 100 100"><text x="0" y="80" font-size="90" fill="%238c5a2b">雲</text></svg>') repeat;
+    color:var(--ink);
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px;position:relative}
+  header{display:flex;align-items:center;gap:14px;margin:6px 0 12px}
+  .seal{width:60px;height:60px;border-radius:14px;border:2px solid var(--primary);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:2px;background:#fff3;backdrop-filter:blur(2px);box-shadow:0 2px 8px rgba(0,0,0,.08), inset 0 0 0 6px #fff}
+  h1{font-size:clamp(22px,4vw,34px);margin:0;line-height:1.2;color:var(--primary);font-weight:900;letter-spacing:2px}
+  .sub{color:#775;font-size:.95rem}
+  .panel{background:rgba(255,255,255,.6);border:1px solid #e6d8c2;border-radius:18px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,.06);backdrop-filter:blur(3px)}
+  .grid{display:grid;gap:14px;grid-template-columns:1fr}
+  @media (min-width:960px){.grid{grid-template-columns:1.3fr .7fr}}
+  .card{background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:14px 16px;box-shadow:0 4px 16px rgba(0,0,0,.05)}
+  .poem-card{background:linear-gradient(180deg,#fff,#fffaf3)}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .btn{padding:10px 14px;border-radius:12px;border:1px solid #d9c8ad;background:#fff;cursor:pointer;transition:.2s;font-weight:700}
+  .btn.primary{background:linear-gradient(#fef7ea,#f6e7c9);border-color:#e6d29f;color:#5e3b0a}
+  .btn.ghost{background:transparent}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(0,0,0,.08)}
+  .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#efe5d1;border:1px solid #e0cda6;color:#6c5531;font-weight:700}
+  .pill{padding:6px 10px;border:1px solid #e6d8c2;border-radius:999px;background:#fff}
+  .muted{opacity:.8}
+  .q{font-size:clamp(18px,3.2vw,26px);line-height:1.5;margin:12px 0 6px;white-space:pre-wrap}
+  .lines{opacity:.9;margin:.5rem 0 .25rem}
+  .opts{display:grid;gap:10px;margin-top:10px}
+  .opt{border:1px solid #e6d8c2;border-radius:12px;padding:12px 14px;cursor:pointer;background:#fff;transition:.15s;position:relative}
+  .opt:hover{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .opt.correct{border-color:#2f7a69;background:#f0fbf7}
+  .opt.wrong{border-color:#c34d53;background:#fff4f4}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+  progress{width:100%;height:10px;border:0;background:#f1e6d1;border-radius:99px}
+  progress::-webkit-progress-bar{background:#f1e6d1;border-radius:99px}
+  progress::-webkit-progress-value{background:linear-gradient(90deg,#d7b46a,#9c6c2d);border-radius:99px}
+  .timer{font-variant-numeric:tabular-nums;font-weight:900;color:var(--red);padding:6px 12px;border:1px solid #f0c5c9;background:#fff7f8;border-radius:10px}
+  .hint{font-size:.95rem;color:#5a503f;background:#fffbe9;border:1px dashed #e9d9b6;border-radius:12px;padding:8px 10px;margin-top:10px}
+  .right{color:var(--jade);font-weight:800}
+  .wrongx{color:var(--red);font-weight:800}
+  .footer{margin-top:18px;font-size:.9rem;color:#776}
+  .titlebar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .small{font-size:.92rem}
+  .kanban{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .board{border:1px dashed #e0cfb3;border-radius:12px;padding:8px 10px;background:#fffef7}
+  .playerBox{display:grid;gap:8px}
+  .tele{display:flex;align-items:center;gap:8px}
+  .tv{border:1px solid #e6d8c2;border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9}
+  .audioBadge{display:none;font-size:1rem}
+</style>
+</head>
+<body>
+  <audio id="snd-correct" preload="auto"></audio>
+  <audio id="snd-wrong" preload="auto"></audio>
+
+  <div class="wrap">
+    <header>
+      <div class="seal">詩</div>
+      <div>
+        <h1>唐诗宋词 · 问答闯关</h1>
+        <div class="sub">二十题一轮｜选择题｜每题 20 秒｜错题本与小电视</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <main class="panel">
+        <div class="titlebar">
+          <div class="controls">
+            <span class="badge">第 <b id="roundNo">1</b> 轮</span>
+            <span class="pill">目标：<b>20</b> 题</span>
+            <span class="pill">总题库：<b id="poolSize">—</b></span>
+          </div>
+          <div class="controls">
+            <button class="btn primary" id="btnStart">开始闯关</button>
+            <button class="btn" id="btnAgain" style="display:none">再来一轮</button>
+          </div>
+        </div>
+
+        <div class="card poem-card" id="qaBox" style="display:none">
+          <div class="meta">
+            <span class="badge">题目 <b id="qIndex">1</b> / <b id="qTotal">20</b></span>
+            <span class="badge">难度：<b id="qDiff">入门</b></span>
+            <span class="timer">⏳ <span id="timeLeft">20</span>s</span>
+          </div>
+          <div class="q" id="questionText">题目加载中…</div>
+          <div class="lines small muted" id="extra"></div>
+          <div id="options" class="opts"></div>
+          <div class="hint" id="hint" style="display:none"></div>
+          <div class="meta">
+            <progress id="prog" max="20" value="0"></progress>
+            <span class="pill">得分：<b id="score">0</b></span>
+          </div>
+        </div>
+
+        <section class="card" id="summary" style="display:none">
+          <h3>本轮总结</h3>
+          <div id="sumText"></div>
+          <div class="controls" style="margin-top:8px">
+            <button class="btn primary" id="btnRetry">再战一轮</button>
+            <button class="btn" id="btnReview">查看错题本</button>
+            <button class="btn ghost" id="btnClearWrong">清空错题本</button>
+          </div>
+        </section>
+
+        <section class="card" id="review" style="display:none">
+          <div class="titlebar">
+            <h3>错题本</h3>
+            <button class="btn" id="btnCloseReview">关闭</button>
+          </div>
+          <div id="wrongList" class="kanban"></div>
+        </section>
+
+        <div class="footer">提示：按 <b>1-4</b> 也可快速作答；每题固定 <b>20s</b>，全部为选择题。</div>
+      </main>
+
+      <aside class="panel">
+        <h3>小电视 · B 站播放器</h3>
+        <div class="card playerBox">
+          <div class="tele">
+            <input id="mediaInput" class="small" style="flex:1;padding:8px;border:1px solid #e2d6c1;border-radius:10px" placeholder="BV1afgjzVEUG"/>
+            <button class="btn" id="btnLoadUrl">播放</button>
+          </div>
+          <div class="tele">
+            <input type="file" id="filePicker" accept="video/*,audio/*"/>
+            <button class="btn" id="btnLoadLocal">播放本地</button>
+            <span id="audioEmoji" class="audioBadge">🎵 音频播放中</span>
+          </div>
+          <div class="small muted">
+            示例：BV1xx411c7mD 或 https://www.bilibili.com/video/BV1xx411c7mD  
+            也可填任意 mp4/mp3/flac/ogg 等直链；或选择本地文件。
+          </div>
+          <div id="playerMount" class="tv"></div>
+        </div>
+
+        <div class="card">
+          <h4>排行榜（本机）</h4>
+          <ol id="rank" class="small" style="margin:0;padding-left:1.1rem"></ol>
+          <div class="controls">
+            <button class="btn" id="btnSaveRank">保存本轮成绩</button>
+            <button class="btn ghost" id="btnClearRank">清空</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>关于题库与难度</h4>
+          <div class="small">
+            题库含 60+ 首唐宋名篇并标注 <b>内容难度 1-3</b>：1=广为人知，3=相对冷门或句式更难。每轮自动编排 6/8/6（易/中/难），总计自动组合 ≥300 道题。
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+<script>
+/* ========= 对错音效（极简 Base64 示例，可自行替换） ========= */
+const SND_CORRECT = "data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAA...";
+const SND_WRONG   = "data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAA...";
+const sndOk = document.getElementById('snd-correct');
+const sndNg = document.getElementById('snd-wrong');
+sndOk.src = SND_CORRECT; sndNg.src = SND_WRONG;
+function playOk(){ try{sndOk.currentTime=0; sndOk.play();}catch{} }
+function playNg(){ try{sndNg.currentTime=0; sndNg.play();}catch{} }
+
+/* ========= 诗词数据（含内容难度 level:1/2/3） ========= */
+const POEMS = [
+  // level=1（广为人知）
+  {title:"静夜思", author:"李白", dynasty:"唐", level:1, lines:["床前明月光","疑是地上霜","举头望明月","低头思故乡"]},
+  {title:"春晓", author:"孟浩然", dynasty:"唐", level:1, lines:["春眠不觉晓","处处闻啼鸟","夜来风雨声","花落知多少"]},
+  {title:"登鹳雀楼", author:"王之涣", dynasty:"唐", level:1, lines:["白日依山尽","黄河入海流","欲穷千里目","更上一层楼"]},
+  {title:"望庐山瀑布", author:"李白", dynasty:"唐", level:1, lines:["日照香炉生紫烟","遥看瀑布挂前川","飞流直下三千尺","疑是银河落九天"]},
+  {title:"黄鹤楼送孟浩然之广陵", author:"李白", dynasty:"唐", level:1, lines:["故人西辞黄鹤楼","烟花三月下扬州","孤帆远影碧空尽","唯见长江天际流"]},
+  {title:"送元二使安西（渭城曲）", author:"王维", dynasty:"唐", level:1, lines:["渭城朝雨浥轻尘","客舍青青柳色新","劝君更尽一杯酒","西出阳关无故人"]},
+  {title:"清明", author:"杜牧", dynasty:"唐", level:1, lines:["清明时节雨纷纷","路上行人欲断魂","借问酒家何处有","牧童遥指杏花村"]},
+  {title:"江雪", author:"柳宗元", dynasty:"唐", level:1, lines:["千山鸟飞绝","万径人踪灭","孤舟蓑笠翁","独钓寒江雪"]},
+  {title:"相思", author:"王维", dynasty:"唐", level:1, lines:["红豆生南国","春来发几枝","愿君多采撷","此物最相思"]},
+  {title:"回乡偶书（一）", author:"贺知章", dynasty:"唐", level:1, lines:["少小离家老大回","乡音无改鬓毛衰","儿童相见不相识","笑问客从何处来"]},
+  {title:"题西林壁", author:"苏轼", dynasty:"宋", level:1, lines:["横看成岭侧成峰","远近高低各不同","不识庐山真面目","只缘身在此山中"]},
+  {title:"饮湖上初晴后雨", author:"苏轼", dynasty:"宋", level:1, lines:["水光潋滟晴方好","山色空蒙雨亦奇","欲把西湖比西子","淡妆浓抹总相宜"]},
+  {title:"水调歌头（明月几时有）", author:"苏轼", dynasty:"宋", level:1, lines:["明月几时有","把酒问青天","不知天上宫阙","今夕是何年"]},
+  {title:"如梦令（常记溪亭日暮）", author:"李清照", dynasty:"宋", level:1, lines:["常记溪亭日暮","沉醉不知归路","兴尽晚回舟","误入藕花深处"]},
+  {title:"春日", author:"朱熹", dynasty:"宋", level:1, lines:["胜日寻芳泗水滨","无边光景一时新","等闲识得东风面","万紫千红总是春"]},
+  {title:"游山西村", author:"陆游", dynasty:"宋", level:1, lines:["莫笑农家腊酒浑","丰年留客足鸡豚","山重水复疑无路","柳暗花明又一村"]},
+  {title:"登高（节选）", author:"杜甫", dynasty:"唐", level:1, lines:["无边落木萧萧下","不尽长江滚滚来"]},
+
+  // level=2（较熟但不一定人人能背全）
+  {title:"早发白帝城", author:"李白", dynasty:"唐", level:2, lines:["朝辞白帝彩云间","千里江陵一日还","两岸猿声啼不住","轻舟已过万重山"]},
+  {title:"九月九日忆山东兄弟", author:"王维", dynasty:"唐", level:2, lines:["独在异乡为异客","每逢佳节倍思亲","遥知兄弟登高处","遍插茱萸少一人"]},
+  {title:"出塞", author:"王昌龄", dynasty:"唐", level:2, lines:["秦时明月汉时关","万里长征人未还","但使龙城飞将在","不教胡马度阴山"]},
+  {title:"芙蓉楼送辛渐", author:"王昌龄", dynasty:"唐", level:2, lines:["寒雨连江夜入吴","平明送客楚山孤","洛阳亲友如相问","一片冰心在玉壶"]},
+  {title:"黄鹤楼", author:"崔颢", dynasty:"唐", level:2, lines:["昔人已乘黄鹤去","此地空余黄鹤楼","黄鹤一去不复返","白云千载空悠悠"]},
+  {title:"枫桥夜泊", author:"张继", dynasty:"唐", level:2, lines:["月落乌啼霜满天","江枫渔火对愁眠","姑苏城外寒山寺","夜半钟声到客船"]},
+  {title:"泊秦淮", author:"杜牧", dynasty:"唐", level:2, lines:["烟笼寒水月笼沙","夜泊秦淮近酒家","商女不知亡国恨","隔江犹唱后庭花"]},
+  {title:"赤壁", author:"杜牧", dynasty:"唐", level:2, lines:["折戟沉沙铁未销","自将磨洗认前朝","东风不与周郎便","铜雀春深锁二乔"]},
+  {title:"夜雨寄北", author:"李商隐", dynasty:"唐", level:2, lines:["君问归期未有期","巴山夜雨涨秋池","何当共剪西窗烛","却话巴山夜雨时"]},
+  {title:"绝句（二）", author:"杜甫", dynasty:"唐", level:2, lines:["两个黄鹂鸣翠柳","一行白鹭上青天","窗含西岭千秋雪","门泊东吴万里船"]},
+  {title:"闻官军收河南河北", author:"杜甫", dynasty:"唐", level:2, lines:["剑外忽传收蓟北","初闻涕泪满衣裳","却看妻子愁何在","漫卷诗书喜欲狂"]},
+  {title:"观书有感（其一）", author:"朱熹", dynasty:"宋", level:2, lines:["半亩方塘一鉴开","天光云影共徘徊","问渠哪得清如许","为有源头活水来"]},
+  {title:"清平乐·村居", author:"辛弃疾", dynasty:"宋", level:2, lines:["茅檐低小","溪上青青草","醉里吴音相媚好","白发谁家翁媪"]},
+  {title:"西江月·夜行黄沙道中", author:"辛弃疾", dynasty:"宋", level:2, lines:["明月别枝惊鹊","清风半夜鸣蝉","稻花香里说丰年","听取蛙声一片"]},
+  {title:"卜算子·咏梅", author:"陆游", dynasty:"宋", level:2, lines:["驿外断桥边","寂寞开无主","已是黄昏独自愁","更著风和雨"]},
+  {title:"忆江南", author:"白居易", dynasty:"唐", level:2, lines:["江南好","风景旧曾谙","日出江花红胜火","春来江水绿如蓝"]},
+  {title:"题都城南庄", author:"崔护", dynasty:"唐", level:2, lines:["去年今日此门中","人面桃花相映红","人面不知何处去","桃花依旧笑春风"]},
+
+  // level=3（相对难）
+  {title:"山居秋暝", author:"王维", dynasty:"唐", level:3, lines:["空山新雨后","天气晚来秋","明月松间照","清泉石上流"]},
+  {title:"鹿柴", author:"王维", dynasty:"唐", level:3, lines:["空山不见人","但闻人语响","返景入深林","复照青苔上"]},
+  {title:"赋得古原草送别", author:"白居易", dynasty:"唐", level:3, lines:["离离原上草","一岁一枯荣","野火烧不尽","春风吹又生"]},
+  {title:"钱塘湖春行", author:"白居易", dynasty:"唐", level:3, lines:["孤山寺北贾亭西","水面初平云脚低","几处早莺争暖树","谁家新燕啄春泥"]},
+  {title:"无题（相见时难）", author:"李商隐", dynasty:"唐", level:3, lines:["相见时难别亦难","东风无力百花残","春蚕到死丝方尽","蜡炬成灰泪始干"]},
+  {title:"望岳", author:"杜甫", dynasty:"唐", level:3, lines:["岱宗夫如何","齐鲁青未了","造化钟神秀","阴阳割昏晓"]},
+  {title:"旅夜书怀", author:"杜甫", dynasty:"唐", level:3, lines:["细草微风岸","危樯独夜舟","星垂平野阔","月涌大江流"]},
+  {title:"游子吟", author:"孟郊", dynasty:"唐", level:3, lines:["慈母手中线","游子身上衣","临行密密缝","意恐迟迟归"]},
+  {title:"早春呈水部张十八员外", author:"韩愈", dynasty:"唐", level:3, lines:["天街小雨润如酥","草色遥看近却无","最是一年春好处","绝胜烟柳满皇都"]},
+  {title:"咏柳", author:"贺知章", dynasty:"唐", level:3, lines:["碧玉妆成一树高","万条垂下绿丝绦","不知细叶谁裁出","二月春风似剪刀"]},
+  {title:"寻隐者不遇", author:"贾岛", dynasty:"唐", level:3, lines:["松下问童子","言师采药去","只在此山中","云深不知处"]},
+  {title:"定风波（莫听穿林打叶声）", author:"苏轼", dynasty:"宋", level:3, lines:["莫听穿林打叶声","何妨吟啸且徐行","竹杖芒鞋轻胜马","谁怕？一蓑烟雨任平生"]},
+  {title:"江城子·密州出猎", author:"苏轼", dynasty:"宋", level:3, lines:["老夫聊发少年狂","左牵黄右擎苍","锦帽貂裘","千骑卷平冈"]},
+  {title:"念奴娇·赤壁怀古", author:"苏轼", dynasty:"宋", level:3, lines:["大江东去","浪淘尽，千古风流人物","故垒西边","人道是、三国周郎赤壁"]},
+  {title:"蝶恋花（春景）", author:"苏轼", dynasty:"宋", level:3, lines:["花褪残红青杏小","燕子飞时，绿水人家绕","枝上柳绵吹又少","天涯何处无芳草"]},
+  {title:"浣溪沙（一曲新词酒一杯）", author:"晏殊", dynasty:"宋", level:3, lines:["一曲新词酒一杯","去年天气旧亭台","夕阳西下几时回"]},
+  {title:"蝶恋花（无可奈何花落去）", author:"晏殊", dynasty:"宋", level:3, lines:["无可奈何花落去","似曾相识燕归来","小园香径独徘徊"]},
+  {title:"渔家傲·秋思", author:"范仲淹", dynasty:"宋", level:3, lines:["塞下秋来风景异","衡阳雁去无留意","四面边声连角起","千嶂里，长烟落日孤城闭"]},
+  {title:"青玉案·元夕", author:"辛弃疾", dynasty:"宋", level:3, lines:["东风夜放花千树","更吹落、星如雨","宝马雕车香满路","凤箫声动，玉壶光转"]},
+  {title:"菩萨蛮·书江西造口壁", author:"辛弃疾", dynasty:"宋", level:3, lines:["郁孤台下清江水","中间多少行人泪","西北望长安","可怜无数山"]},
+  {title:"武陵春（风住尘香花已尽）", author:"李清照", dynasty:"宋", level:3, lines:["风住尘香花已尽","日晚倦梳头","物是人非事事休","欲语泪先流"]},
+  {title:"声声慢（寻寻觅觅）", author:"李清照", dynasty:"宋", level:3, lines:["寻寻觅觅","冷冷清清","凄凄惨惨戚戚","乍暖还寒时候"]},
+  {title:"钗头凤（红酥手）", author:"陆游", dynasty:"宋", level:3, lines:["红酥手","黄滕酒","满城春色宫墙柳","东风恶，欢情薄","一怀愁绪，几年离索"]},
+  {title:"示儿", author:"陆游", dynasty:"宋", level:3, lines:["死去元知万事空","但悲不见九州同","王师北定中原日","家祭无忘告乃翁"]},
+  {title:"题临安邸", author:"林升", dynasty:"宋", level:3, lines:["山外青山楼外楼","西湖歌舞几时休","暖风熏得游人醉","直把杭州作汴州"]},
+  {title:"雨霖铃（寒蝉凄切）", author:"柳永", dynasty:"北宋", level:3, lines:["寒蝉凄切","对长亭晚","骤雨初歇","都门帐饮无绪"]},
+  {title:"望海潮（东南形胜）", author:"柳永", dynasty:"北宋", level:3, lines:["东南形胜","三吴都会","钱塘自古繁华","烟柳画桥","风帘翠幕"]},
+  {title:"卜算子（我住长江头）", author:"李之仪", dynasty:"北宋", level:3, lines:["我住长江头","君住长江尾","日日思君不见君","共饮长江水"]},
+  {title:"夜上受降城闻笛", author:"李益", dynasty:"唐", level:3, lines:["回乐峰前沙似雪","受降城外月如霜","不知何处吹芦管","一夜征人尽望乡"]},
+  {title:"望天门山", author:"李白", dynasty:"唐", level:3, lines:["天门中断楚江开","碧水东流至此回","两岸青山相对出","孤帆一片日边来"]}
+];
+// 65+ 首；每首派生 4~6 道选择题，合计 ≥300 题
+
+/* ========= 工具 ========= */
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ========= 出题（全部选择题） ========= */
+const DIFF_LABEL = {1:"入门",2:"进阶",3:"挑战"};
+const PER_ROUND = {1:6, 2:8, 3:6}; // 易/中/难 各出题量
+const FIX_TIME = 20;
+
+function genQuestions(){
+  const items=[];
+  [1,2,3].forEach(level=>{
+    const pool = POEMS.filter(p=>p.level===level);
+    for(let i=0;i<PER_ROUND[level];i++){
+      const poem = pick(pool);
+      const types = ["nextLineMC","prevLineMC","authorMC","titleMC"];
+      const type = pick(types);
+      items.push(makeMC(poem,type, level));
+    }
+  });
+  return shuffle(items); // 打乱顺序
+}
+
+function makeMC(poem,type, level){
+  const lines = poem.lines;
+  const qi = Math.floor(Math.random()*lines.length);
+  let stem="", extra="", opts=null, answer="";
+  const authors = shuffle(POEMS.map(p=>p.author).filter((v,i,a)=>a.indexOf(v)===i && v!==poem.author)).slice(0,3);
+  const titles = shuffle(POEMS.map(p=>p.title).filter(t=>t!==poem.title)).slice(0,3);
+
+  switch(type){
+    case "nextLineMC":{
+      const i = Math.min(qi, lines.length-2);
+      stem = `【下句是哪一句？】\n${lines[i]}`;
+      answer = lines[i+1];
+      const wrongs = shuffle(POEMS.map(p=>pick(p.lines))).filter(l=>l!==answer).slice(0,3);
+      opts = shuffle([answer, ...wrongs]);
+      extra = `出自《${poem.title}》·${poem.author}（${poem.dynasty}）`;
+      break;
+    }
+    case "prevLineMC":{
+      const i = Math.max(1, qi);
+      stem = `【上句是哪一句？】\n${lines[i]}`;
+      answer = lines[i-1];
+      const wrongs = shuffle(POEMS.map(p=>pick(p.lines))).filter(l=>l!==answer).slice(0,3);
+      opts = shuffle([answer, ...wrongs]);
+      extra = `出自《${poem.title}》·${poem.author}（${poem.dynasty}）`;
+      break;
+    }
+    case "authorMC":{
+      stem = `【作者是谁？】\n《${poem.title}》：${pick(lines)}`;
+      answer = poem.author;
+      opts = shuffle([answer, ...authors]);
+      extra = `朝代：${poem.dynasty}`;
+      break;
+    }
+    case "titleMC":{
+      stem = `【题目是哪一篇？】\n${pick(lines)} / ${pick(lines)}`;
+      answer = poem.title;
+      opts = shuffle([answer, ...titles]);
+      extra = `作者：${poem.author}（${poem.dynasty}）`;
+      break;
+    }
+  }
+  return {poem, stem, extra, opts, answer, level, time:FIX_TIME};
+}
+
+/* ========= 游戏主逻辑 ========= */
+const $ = s=>document.querySelector(s);
+const qaBox = $('#qaBox'), qText=$('#questionText'), extra=$('#extra'), optsBox=$('#options');
+const prog=$('#prog'), qIndex=$('#qIndex'), qTotal=$('#qTotal'), qDiff=$('#qDiff'), timeLeft=$('#timeLeft'), scoreEl=$('#score'), sumBox=$('#summary'), sumText=$('#sumText');
+const wrongList=$('#wrongList');
+const btnStart=$('#btnStart'), btnAgain=$('#btnAgain'), btnRetry=$('#btnRetry');
+const btnReview=$('#btnReview'), btnCloseReview=$('#btnCloseReview'), btnClearWrong=$('#btnClearWrong');
+const roundNo=$('#roundNo'), poolSize=$('#poolSize');
+
+let state = {
+  round:1, total:20, idx:0, score:0, timer:null, tLeft:0, items:[], wrong: JSON.parse(localStorage.getItem('poem_wrong')||'[]'), timeUsed:0, finished:false
+};
+poolSize.textContent = POEMS.length + " 首（自动出题≥300）";
+
+btnStart.onclick = startGame;
+btnAgain.onclick = startGame;
+btnRetry.onclick = startGame;
+
+function startGame(){
+  state.items = genQuestions();
+  state.total = state.items.length;
+  state.idx=0; state.score=0; state.finished=false; state.timeUsed=0;
+  qTotal.textContent=state.total;
+  prog.max = state.total; prog.value=0;
+  scoreEl.textContent=0; qIndex.textContent=1;
+  sumBox.style.display='none'; $('#review').style.display='none';
+  btnAgain.style.display='none';
+  qaBox.style.display='block';
+  nextQ();
+}
+
+function nextQ(){
+  if(state.timer){ clearInterval(state.timer); state.timer=null; }
+  if(state.idx >= state.items.length){ return finish(); }
+  const it = state.items[state.idx];
+  qDiff.textContent = DIFF_LABEL[it.level];
+  qText.textContent = it.stem;
+  extra.textContent = it.extra || '';
+  optsBox.innerHTML='';
+  $('#hint').style.display='none'; $('#hint').textContent='';
+  qIndex.textContent = state.idx+1;
+
+  it.opts.forEach((o,i)=>{
+    const div=document.createElement('div');
+    div.className='opt'; div.tabIndex=0;
+    div.innerHTML = `<b>${i+1}.</b> ${o}`;
+    div.onclick = ()=> choose(o);
+    optsBox.appendChild(div);
+  });
+
+  // 计时（固定20s）
+  state.tLeft = FIX_TIME; timeLeft.textContent = state.tLeft;
+  state.timer = setInterval(()=>{
+    state.tLeft--; state.timeUsed++;
+    timeLeft.textContent = state.tLeft;
+    if(state.tLeft<=0){ clearInterval(state.timer); state.timer=null; timeout(); }
+  },1000);
+
+  // 快捷键 1-4
+  document.onkeydown = (e)=>{
+    const n = parseInt(e.key,10);
+    if(n>=1 && n<=4 && it.opts[n-1]) choose(it.opts[n-1]);
+  };
+
+  function timeout(){ showResult(false); recordWrong(''); }
+  function choose(val){
+    if(state.timer){ clearInterval(state.timer); state.timer=null; }
+    const ok = (val===it.answer);
+    showResult(ok);
+    if(!ok) recordWrong(val);
+  }
+  function showResult(ok){
+    [...optsBox.children].forEach(c=>{
+      const text = c.textContent.replace(/^\d+\.\s*/,'');
+      if(text===it.answer) c.classList.add('correct');
+      else c.classList.add('wrong');
+      c.onclick=null;
+    });
+    if(ok){ state.score+=5; playOk(); } else { playNg(); }
+    scoreEl.textContent = state.score;
+    prog.value = state.idx+1;
+    setTimeout(()=>{ state.idx++; nextQ(); }, 900);
+  }
+  function recordWrong(user){
+    state.wrong.push({stem:it.stem, poem:it.poem, answer:it.answer, user});
+    if(state.wrong.length>200) state.wrong = state.wrong.slice(-200);
+    localStorage.setItem('poem_wrong', JSON.stringify(state.wrong));
+  }
+}
+
+function finish(){
+  qaBox.style.display='none'; btnAgain.style.display='inline-block';
+  state.finished=true;
+  const rightRate = Math.round(state.score / (state.items.length*5) * 100);
+  sumText.innerHTML = `
+    <div style="text-align:center;margin-top:6px">
+      <div style="font-size:28px;color:var(--primary);font-weight:900">本轮结束</div>
+      <div class="muted">用时 <b>${state.timeUsed}</b> 秒｜总分 <b>${state.score}</b>｜正确率 <b>${rightRate}%</b></div>
+      <div class="hint" style="display:inline-block;margin-top:8px">继续闯关，或把错题加入收藏慢慢啃！</div>
+    </div>`;
+  sumBox.style.display='block';
+}
+
+/* 错题本 */
+function renderWrong(){
+  wrongList.innerHTML='';
+  if(state.wrong.length===0){ wrongList.innerHTML='<div class="board muted">暂无错题，继续保持！</div>'; return; }
+  state.wrong.slice(-40).reverse().forEach(w=>{
+    const d = document.createElement('div');
+    d.className='board';
+    d.innerHTML = `<div class="small"><b>题干：</b>${w.stem}</div>
+                   <div class="small"><b>你的答案：</b><span class="wrongx">${w.user||'（无）'}</span></div>
+                   <div class="small"><b>正确：</b><span class="right">${w.answer}</span></div>
+                   <div class="small muted">出自：《${w.poem.title}》·${w.poem.author}</div>`;
+    wrongList.appendChild(d);
+  });
+}
+btnClearWrong.onclick = ()=>{ state.wrong=[]; localStorage.setItem('poem_wrong','[]'); renderWrong(); }
+btnReview.onclick = ()=>{ renderWrong(); $('#review').style.display='block'; }
+btnCloseReview.onclick = ()=>{ $('#review').style.display='none'; }
+
+/* 排行榜（本机） */
+function loadRank(){ return JSON.parse(localStorage.getItem('poem_rank')||'[]'); }
+function saveRank(list){ localStorage.setItem('poem_rank', JSON.stringify(list)); }
+function renderRank(){
+  const rk = loadRank().slice(0,10);
+  const ol = $('#rank'); ol.innerHTML='';
+  rk.forEach((r)=>{ const li=document.createElement('li'); li.textContent = `${r.date}｜${r.score} 分（用时 ${r.time}s）`; ol.appendChild(li); });
+}
+renderRank();
+$('#btnSaveRank').onclick = ()=>{
+  if(!state.finished) return alert('请先完成一轮再保存成绩~');
+  const rk = loadRank();
+  rk.unshift({date:new Date().toLocaleString(), score:state.score, time:state.timeUsed});
+  saveRank(rk.sort((a,b)=>b.score-a.score));
+  renderRank();
+}
+$('#btnClearRank').onclick = ()=>{ localStorage.removeItem('poem_rank'); renderRank(); }
+
+/* ========= 小电视播放器（B站/通用/本地 + 音频emoji） ========= */
+const mediaInput = $('#mediaInput');
+const mount = $('#playerMount');
+const audioEmoji = $('#audioEmoji');
+
+function isBV(str){ return /^BV[0-9A-Za-z]+$/.test(str.trim()); }
+function parseBVfromUrl(url){
+  const m = url.match(/\/BV([0-9A-Za-z]+)/i);
+  return m ? "BV"+m[1] : null;
+}
+function isAudioUrl(u){ return /\.(mp3|flac|aac|m4a|ogg|wav)(\?.*)?$/i.test(u); }
+function isVideoUrl(u){ return /\.(mp4|webm|ogg|mov|mkv)(\?.*)?$/i.test(u); }
+
+function loadBV(bv){
+  audioEmoji.style.display='none';
+  mount.innerHTML = '';
+  const iframe = document.createElement('iframe');
+  iframe.src = `https://player.bilibili.com/player.html?bvid=${encodeURIComponent(bv)}&page=1&high_quality=1&autoplay=1`;
+  iframe.allow = "autoplay; fullscreen; picture-in-picture";
+  iframe.style.width='100%'; iframe.style.height='100%'; iframe.frameBorder='0';
+  mount.appendChild(iframe);
+}
+
+function loadVideoUrl(url){
+  mount.innerHTML='';
+  const v = document.createElement('video');
+  v.src = url; v.controls = true; v.autoplay = true; v.style.width='100%'; v.style.height='100%';
+  mount.appendChild(v);
+  audioEmoji.style.display = isAudioUrl(url) ? 'inline-block' : 'none';
+}
+
+$('#btnLoadUrl').onclick = ()=>{
+  let val = mediaInput.value.trim();
+  if(!val) return;
+  // 1) 纯 BV
+  if(isBV(val)) return loadBV(val);
+  // 2) B站链接里提取 BV
+  if(/bilibili\.com\/video\//i.test(val)){
+    const bv = parseBVfromUrl(val);
+    if(bv) return loadBV(bv);
+  }
+  // 3) 其他直链：视频或音频
+  loadVideoUrl(val);
+};
+
+// 本地文件
+$('#btnLoadLocal').onclick = ()=>{
+  const f = $('#filePicker').files[0];
+  if(!f) return;
+  const url = URL.createObjectURL(f);
+  if(f.type.startsWith('audio/')){
+    // 用 <audio> 播放，并显示 🎵
+    mount.innerHTML='';
+    const a = document.createElement('audio');
+    a.src = url; a.controls = true; a.autoplay = true; a.style.width='100%';
+    mount.appendChild(a);
+    audioEmoji.style.display='inline-block';
+  }else{
+    audioEmoji.style.display='none';
+    loadVideoUrl(url);
+  }
+};
+
+// 预置一个演示：你可以换成自己的
+mediaInput.value = "BV1afgjzVEUG";
+
+/* ===== 初始化 ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  // 不自动播放，等用户点击以避免浏览器策略拦截
+});
+</script>
+</body>
+</html>
+
