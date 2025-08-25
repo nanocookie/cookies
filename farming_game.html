@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌱 快乐农场 v3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%);
+            min-height: 100vh;
+            overflow-x: auto;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+
+        .title {
+            font-size: 2em;
+            color: #228B22;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .money {
+            font-size: 1.5em;
+            color: #FF6B35;
+            font-weight: bold;
+        }
+
+        .level {
+            font-size: 1.2em;
+            color: #8A2BE2;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #FFE4B5, #DEB887);
+            border: 2px solid #D2B48C;
+            border-radius: 10px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #8B4513;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(145deg, #DEB887, #D2B48C);
+        }
+
+        .shop {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .shop h3 {
+            color: #228B22;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .seeds {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .seed {
+            background: linear-gradient(145deg, #FFE4B5, #DEB887);
+            border: 3px solid #D2B48C;
+            border-radius: 15px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .seed:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .seed.selected {
+            background: linear-gradient(145deg, #98FB98, #90EE90);
+            border-color: #228B22;
+        }
+
+        .seed.locked {
+            background: linear-gradient(145deg, #D3D3D3, #A9A9A9);
+            border-color: #808080;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .seed-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .seed-name {
+            font-weight: bold;
+            color: #8B4513;
+            font-size: 0.9em;
+        }
+
+        .seed-level {
+            color: #8A2BE2;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        .seed-price {
+            color: #FF6B35;
+            font-size: 0.8em;
+            margin-top: 2px;
+        }
+
+        .seed-time {
+            color: #666;
+            font-size: 0.7em;
+            margin-top: 2px;
+        }
+
+        .expand-section {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px dashed #FFD700;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .expand-btn {
+            background: linear-gradient(145deg, #FFD700, #FFA500);
+            border: 3px solid #FF8C00;
+            border-radius: 15px;
+            padding: 15px 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #8B4513;
+            transition: all 0.3s ease;
+        }
+
+        .expand-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.3);
+        }
+
+        .expand-btn:disabled {
+            background: #D3D3D3;
+            border-color: #808080;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .farm {
+            background: rgba(139, 69, 19, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .plot {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(145deg, #8B4513, #A0522D);
+            border: 3px solid #654321;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+            font-size: 2.5em;
+        }
+
+        .plot:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .plot.planted {
+            background: linear-gradient(145deg, #654321, #8B4513);
+        }
+
+        .plot.ready {
+            background: linear-gradient(145deg, #32CD32, #228B22);
+            animation: glow 1s ease-in-out infinite alternate;
+        }
+
+        .plot.locked {
+            background: linear-gradient(145deg, #696969, #808080);
+            border-color: #2F4F4F;
+            cursor: not-allowed;
+            font-size: 1.5em;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px #32CD32;
+            }
+            to {
+                box-shadow: 0 0 15px #32CD32, 0 0 20px #32CD32;
+            }
+        }
+
+        .growth-stage-1 { font-size: 1.5em; }
+        .growth-stage-2 { font-size: 2em; }
+        .growth-stage-3 { font-size: 2.5em; }
+
+        .timer {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #333;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6em;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 3px solid #32CD32;
+            font-size: 1em;
+            color: #228B22;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+            max-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat {
+            text-align: center;
+            color: #228B22;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #FF6B35;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal h3 {
+            color: #228B22;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .seeds {
+                justify-content: center;
+            }
+            .seed {
+                min-width: 100px;
+                padding: 8px;
+            }
+            .farm {
+                grid-template-columns: repeat(4, 1fr);
+                padding: 15px;
+            }
+            .message {
+                right: 10px;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <div class="title">🌱 快乐农场 v3</div>
+            <div class="header-right">
+                <div class="level">等级 <span id="level">1</span></div>
+                <div class="money">💰 <span id="money">100</span> 金币</div>
+                <div class="controls">
+                    <button class="btn" onclick="saveGame()">💾 保存</button>
+                    <button class="btn" onclick="showResetModal()">🔄 重置</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="shop">
+            <h3>🏪 种子商店</h3>
+            <div class="seeds" id="seeds"></div>
+            <div class="expand-section">
+                <h4 style="color: #FF6B35; margin-bottom: 10px;">🌍 开垦新土地</h4>
+                <button class="expand-btn" id="expandBtn" onclick="expandFarm()">
+                    开垦土地 - <span id="expandCost">500</span> 金币
+                </button>
+            </div>
+        </div>
+
+        <div class="farm" id="farm"></div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="harvested">0</div>
+                <div>已收获</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="planted">0</div>
+                <div>已种植</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="earned">0</div>
+                <div>总收入</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="plotCount">6</div>
+                <div>土地数量</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resetModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>🔄 重置游戏</h3>
+            <p>确定要重置游戏吗？所有进度将丢失！</p>
+            <div class="modal-buttons">
+                <button class="btn" onclick="resetGame()">确定</button>
+                <button class="btn" onclick="hideResetModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class FarmGame {
+            constructor() {
+                this.money = 100;
+                this.level = 1;
+                this.selectedSeed = null;
+                this.plots = [];
+                this.unlockedPlots = 6;
+                this.expandCost = 500;
+                this.stats = {
+                    harvested: 0,
+                    planted: 0,
+                    earned: 0
+                };
+
+                this.seedTypes = {
+                    carrot: {
+                        name: '胡萝卜',
+                        icon: '🥕',
+                        level: 1,
+                        price: 5,
+                        sellPrice: 12,
+                        growTime: 30,
+                        stages: ['🌱', '🌿', '🥕']
+                    },
+                    potato: {
+                        name: '土豆',
+                        icon: '🥔',
+                        level: 1,
+                        price: 8,
+                        sellPrice: 20,
+                        growTime: 40,
+                        stages: ['🌱', '🌿', '🥔']
+                    },
+                    tomato: {
+                        name: '番茄',
+                        icon: '🍅',
+                        level: 2,
+                        price: 16,
+                        sellPrice: 40,
+                        growTime: 60,
+                        stages: ['🌱', '🌿', '🍅']
+                    },
+                    cabbage: {
+                        name: '白菜',
+                        icon: '🥬',
+                        level: 2,
+                        price: 20,
+                        sellPrice: 50,
+                        growTime: 75,
+                        stages: ['🌱', '🌿', '🥬']
+                    },
+                    corn: {
+                        name: '玉米',
+                        icon: '🌽',
+                        level: 3,
+                        price: 40,
+                        sellPrice: 100,
+                        growTime: 120,
+                        stages: ['🌱', '🌿', '🌽']
+                    },
+                    eggplant: {
+                        name: '茄子',
+                        icon: '🍆',
+                        level: 3,
+                        price: 50,
+                        sellPrice: 125,
+                        growTime: 150,
+                        stages: ['🌱', '🌿', '🍆']
+                    },
+                    pumpkin: {
+                        name: '南瓜',
+                        icon: '🎃',
+                        level: 4,
+                        price: 100,
+                        sellPrice: 250,
+                        growTime: 240,
+                        stages: ['🌱', '🌿', '🎃']
+                    },
+                    broccoli: {
+                        name: '西兰花',
+                        icon: '🥦',
+                        level: 4,
+                        price: 120,
+                        sellPrice: 300,
+                        growTime: 300,
+                        stages: ['🌱', '🌿', '🥦']
+                    },
+                    avocado: {
+                        name: '牛油果',
+                        icon: '🥑',
+                        level: 5,
+                        price: 250,
+                        sellPrice: 600,
+                        growTime: 480,
+                        stages: ['🌱', '🌿', '🥑']
+                    }
+                };
+
+                this.loadGame();
+                this.init();
+            }
+
+            init() {
+                this.createShop();
+                this.createFarm();
+                this.updateDisplay();
+                this.startGameLoop();
+                this.startAutoSave();
+            }
+
+            createShop() {
+                const seedsContainer = document.getElementById('seeds');
+                
+                // 强制清空所有子元素
+                while (seedsContainer.firstChild) {
+                    seedsContainer.removeChild(seedsContainer.firstChild);
+                }
+                
+                // 清除选中状态
+                this.selectedSeed = null;
+                
+                Object.entries(this.seedTypes).forEach(([key, seed]) => {
+                    const seedDiv = document.createElement('div');
+                    seedDiv.className = 'seed';
+                    seedDiv.dataset.seedType = key;
+                    
+                    const isLocked = seed.level > this.level;
+                    if (isLocked) {
+                        seedDiv.classList.add('locked');
+                    }
+                    
+                    seedDiv.innerHTML = `
+                        <div class="seed-icon">${isLocked ? '🔒' : seed.icon}</div>
+                        <div class="seed-name">${seed.name}</div>
+                        <div class="seed-level">LV.${seed.level}</div>
+                        <div class="seed-price">💰 ${seed.price}</div>
+                        <div class="seed-time">⏰ ${this.formatTime(seed.growTime)}</div>
+                    `;
+                    
+                    if (!isLocked) {
+                        seedDiv.addEventListener('click', () => this.selectSeed(key, seedDiv));
+                    }
+                    
+                    seedsContainer.appendChild(seedDiv);
+                });
+            }
+
+            createFarm() {
+                const farmContainer = document.getElementById('farm');
+                farmContainer.innerHTML = '';
+                this.plots = [];
+                
+                for (let i = 0; i < 24; i++) {
+                    const plot = document.createElement('div');
+                    plot.className = 'plot';
+                    plot.dataset.plotIndex = i;
+                    
+                    if (i >= this.unlockedPlots) {
+                        plot.classList.add('locked');
+                        plot.innerHTML = '🔒';
+                    } else {
+                        plot.addEventListener('click', () => this.handlePlotClick(i));
+                    }
+                    
+                    farmContainer.appendChild(plot);
+                    this.plots.push({
+                        element: plot,
+                        planted: false,
+                        seedType: null,
+                        plantTime: 0,
+                        stage: 0,
+                        unlocked: i < this.unlockedPlots
+                    });
+                }
+            }
+
+            selectSeed(seedType, seedElement) {
+                const seed = this.seedTypes[seedType];
+                if (seed.level > this.level) return;
+
+                document.querySelectorAll('.seed').forEach(s => s.classList.remove('selected'));
+                
+                if (this.selectedSeed === seedType) {
+                    this.selectedSeed = null;
+                } else {
+                    this.selectedSeed = seedType;
+                    seedElement.classList.add('selected');
+                }
+            }
+
+            handlePlotClick(plotIndex) {
+                const plot = this.plots[plotIndex];
+                if (!plot.unlocked) return;
+                
+                if (!plot.planted && this.selectedSeed) {
+                    this.plantSeed(plotIndex);
+                } else if (plot.planted && plot.stage === 3) {
+                    this.harvestPlot(plotIndex);
+                }
+            }
+
+            plantSeed(plotIndex) {
+                const seed = this.seedTypes[this.selectedSeed];
+                
+                if (this.money >= seed.price) {
+                    const plot = this.plots[plotIndex];
+                    
+                    this.money -= seed.price;
+                    plot.planted = true;
+                    plot.seedType = this.selectedSeed;
+                    plot.plantTime = Date.now();
+                    plot.stage = 1;
+                    
+                    plot.element.classList.add('planted');
+                    plot.element.innerHTML = seed.stages[0];
+                    
+                    this.stats.planted++;
+                    this.updateDisplay();
+                    this.showMessage(`种植了 ${seed.name}！`);
+                } else {
+                    this.showMessage('金币不足！');
+                }
+            }
+
+            harvestPlot(plotIndex) {
+                const plot = this.plots[plotIndex];
+                const seed = this.seedTypes[plot.seedType];
+                
+                this.money += seed.sellPrice;
+                this.stats.harvested++;
+                this.stats.earned += seed.sellPrice;
+                
+                this.checkLevelUp();
+                
+                plot.planted = false;
+                plot.seedType = null;
+                plot.plantTime = 0;
+                plot.stage = 0;
+                plot.element.className = 'plot';
+                plot.element.innerHTML = '';
+                
+                this.updateDisplay();
+                this.showMessage(`收获 ${seed.name}，获得 ${seed.sellPrice} 金币！`);
+            }
+
+            checkLevelUp() {
+                const newLevel = Math.floor(this.stats.harvested / 10) + 1;
+                if (newLevel > this.level && newLevel <= 5) {
+                    const oldLevel = this.level;
+                    this.level = newLevel;
+                    this.showMessage(`🎉 恭喜升级到 ${this.level} 级！解锁新蔬菜！`);
+                    
+                    // 延迟重建商店，确保DOM更新完成
+                    setTimeout(() => {
+                        this.createShop();
+                    }, 100);
+                }
+            }
+
+            expandFarm() {
+                if (this.money >= this.expandCost && this.unlockedPlots < 24) {
+                    this.money -= this.expandCost;
+                    this.unlockedPlots += 2;
+                    this.expandCost = Math.floor(this.expandCost * 1.5);
+                    
+                    for (let i = this.unlockedPlots - 2; i < this.unlockedPlots; i++) {
+                        if (this.plots[i]) {
+                            this.plots[i].unlocked = true;
+                            this.plots[i].element.classList.remove('locked');
+                            this.plots[i].element.innerHTML = '';
+                            this.plots[i].element.addEventListener('click', () => this.handlePlotClick(i));
+                        }
+                    }
+                    
+                    this.updateDisplay();
+                    this.showMessage(`成功开垦了2块新土地！`);
+                } else if (this.unlockedPlots >= 24) {
+                    this.showMessage('已达到最大土地数量！');
+                } else {
+                    this.showMessage('金币不足，无法开垦土地！');
+                }
+            }
+
+            updateGrowth() {
+                const now = Date.now();
+                
+                this.plots.forEach(plot => {
+                    if (plot.planted && plot.stage < 3) {
+                        const seed = this.seedTypes[plot.seedType];
+                        const elapsed = (now - plot.plantTime) / 1000;
+                        const progress = elapsed / seed.growTime;
+                        
+                        let newStage;
+                        if (progress >= 1) {
+                            newStage = 3;
+                        } else if (progress >= 0.66) {
+                            newStage = 2;
+                        } else if (progress >= 0.33) {
+                            newStage = 1;
+                        } else {
+                            newStage = 1;
+                        }
+                        
+                        if (newStage !== plot.stage) {
+                            plot.stage = newStage;
+                            plot.element.innerHTML = seed.stages[newStage - 1];
+                            plot.element.className = `plot planted growth-stage-${newStage}`;
+                            
+                            if (newStage === 3) {
+                                plot.element.classList.add('ready');
+                            }
+                        }
+                        
+                        if (plot.stage < 3) {
+                            const remainingTime = Math.ceil(seed.growTime - elapsed);
+                            if (remainingTime > 0) {
+                                let timerElement = plot.element.querySelector('.timer');
+                                if (!timerElement) {
+                                    timerElement = document.createElement('div');
+                                    timerElement.className = 'timer';
+                                    plot.element.appendChild(timerElement);
+                                }
+                                timerElement.textContent = this.formatTime(remainingTime);
+                            }
+                        } else {
+                            const timerElement = plot.element.querySelector('.timer');
+                            if (timerElement) {
+                                timerElement.remove();
+                            }
+                        }
+                    }
+                });
+            }
+
+            formatTime(seconds) {
+                if (seconds < 60) {
+                    return `${seconds}`;
+                } else if (seconds < 3600) {
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    return remainingSeconds > 0 ? `${minutes}:${remainingSeconds.toString().padStart(2, '0')}` : `${minutes}`;
+                } else {
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    return `${hours}:${minutes.toString().padStart(2, '0')}`;
+                }
+            }
+
+            updateDisplay() {
+                document.getElementById('money').textContent = this.money;
+                document.getElementById('level').textContent = this.level;
+                document.getElementById('harvested').textContent = this.stats.harvested;
+                document.getElementById('planted').textContent = this.stats.planted;
+                document.getElementById('earned').textContent = this.stats.earned;
+                document.getElementById('plotCount').textContent = this.unlockedPlots;
+                document.getElementById('expandCost').textContent = this.expandCost;
+                
+                const expandBtn = document.getElementById('expandBtn');
+                if (this.unlockedPlots >= 24) {
+                    expandBtn.textContent = '已达到最大土地数量';
+                    expandBtn.disabled = true;
+                } else {
+                    expandBtn.disabled = this.money < this.expandCost;
+                }
+            }
+
+            showMessage(text) {
+                const existingMessages = document.querySelectorAll('.message');
+                existingMessages.forEach(msg => msg.remove());
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                messageDiv.textContent = text;
+                document.body.appendChild(messageDiv);
+                
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
+                }, 3000);
+            }
+
+            saveGame() {
+                const gameData = {
+                    money: this.money,
+                    level: this.level,
+                    unlockedPlots: this.unlockedPlots,
+                    expandCost: this.expandCost,
+                    stats: this.stats,
+                    plots: this.plots.map(plot => ({
+                        planted: plot.planted,
+                        seedType: plot.seedType,
+                        plantTime: plot.plantTime,
+                        stage: plot.stage,
+                        unlocked: plot.unlocked
+                    })),
+                    saveTime: Date.now()
+                };
+                
+                try {
+                    const gameDataString = JSON.stringify(gameData);
+                    document.cookie = `farmGame=${gameDataString}; expires=Fri, 31 Dec 2099 23:59:59 GMT; path=/`;
+                    this.showMessage('游戏已保存！');
+                } catch (e) {
+                    this.showMessage('保存失败！');
+                }
+            }
+
+            loadGame() {
+                try {
+                    const cookies = document.cookie.split(';');
+                    const gameCookie = cookies.find(cookie => cookie.trim().startsWith('farmGame='));
+                    
+                    if (gameCookie) {
+                        const gameDataString = gameCookie.split('=')[1];
+                        const gameData = JSON.parse(gameDataString);
+                        
+                        this.money = gameData.money || 100;
+                        this.level = gameData.level || 1;
+                        this.unlockedPlots = gameData.unlockedPlots || 6;
+                        this.expandCost = gameData.expandCost || 500;
+                        this.stats = gameData.stats || { harvested: 0, planted: 0, earned: 0 };
+                        
+                        if (gameData.plots) {
+                            setTimeout(() => {
+                                gameData.plots.forEach((plotData, index) => {
+                                    if (this.plots[index] && plotData.planted && this.seedTypes[plotData.seedType]) {
+                                        const plot = this.plots[index];
+                                        const seed = this.seedTypes[plotData.seedType];
+                                        
+                                        plot.planted = plotData.planted;
+                                        plot.seedType = plotData.seedType;
+                                        plot.plantTime = plotData.plantTime;
+                                        plot.stage = plotData.stage;
+                                        plot.unlocked = plotData.unlocked;
+                                        
+                                        plot.element.classList.add('planted');
+                                        plot.element.innerHTML = seed.stages[plotData.stage - 1];
+                                        plot.element.className = `plot planted growth-stage-${plotData.stage}`;
+                                        
+                                        if (plotData.stage === 3) {
+                                            plot.element.classList.add('ready');
+                                        }
+                                    }
+                                });
+                            }, 100);
+                        }
+                        
+                        this.showMessage('游戏进度已加载！');
+                    }
+                } catch (e) {
+                    console.log('加载游戏失败，使用默认设置');
+                }
+            }
+
+            resetGame() {
+                document.cookie = 'farmGame=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+                location.reload();
+            }
+
+            showResetModal() {
+                document.getElementById('resetModal').style.display = 'flex';
+            }
+
+            hideResetModal() {
+                document.getElementById('resetModal').style.display = 'none';
+            }
+
+            startGameLoop() {
+                setInterval(() => {
+                    this.updateGrowth();
+                }, 1000);
+            }
+
+            startAutoSave() {
+                setInterval(() => {
+                    this.saveGame();
+                }, 30000);
+                
+                window.addEventListener('beforeunload', () => {
+                    this.saveGame();
+                });
+            }
+        }
+
+        // 全局函数，供HTML调用
+        function saveGame() {
+            if (game) game.saveGame();
+        }
+
+        function showResetModal() {
+            if (game) game.showResetModal();
+        }
+
+        function hideResetModal() {
+            if (game) game.hideResetModal();
+        }
+
+        function resetGame() {
+            if (game) game.resetGame();
+        }
+
+        function expandFarm() {
+            if (game) game.expandFarm();
+        }
+
+        let game;
+        window.addEventListener('load', () => {
+            game = new FarmGame();
+        });
+    </script>
+</body>
+</html>
+                
